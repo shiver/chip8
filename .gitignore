@@ -1,0 +1,4 @@
+/target
+**/*.rs.bk
+/data
+SDL2.dll

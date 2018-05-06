@@ -1,0 +1,12 @@
+[package]
+name = "chip8"
+version = "0.1.0"
+authors = ["Robert Vally <rvally@gmail.com>"]
+build = "build.rs"
+
+[dependencies]
+byteorder="1"
+enum-primitive-derive = "^0.1"
+num-traits = "^0.1"
+rand = "0.4"
+sdl2 = "0.31"
