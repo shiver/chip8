@@ -9,142 +9,76 @@ use chip8::instructions::Instruction;
 
 #[test]
 fn test_opcode_to_instruction() {
-    assert_eq!(
-        Instruction::from_u16(&0x00e0),
-        Some(Instruction::ClearDisplay)
-    );
+    assert_eq!(Instruction::from_u16(&0x00e0),
+               Some(Instruction::ClearDisplay));
     assert_eq!(Instruction::from_u16(&0x00ee), Some(Instruction::Return));
-    assert_eq!(
-        Instruction::from_u16(&0x1123),
-        Some(Instruction::JumpToAddress(0x0123))
-    );
-    assert_eq!(
-        Instruction::from_u16(&0x2234),
-        Some(Instruction::CallSubroutine(0x0234))
-    );
-    assert_eq!(
-        Instruction::from_u16(&0x3345),
-        Some(Instruction::SkipIfEqual(0x3, 0x45))
-    );
-    assert_eq!(
-        Instruction::from_u16(&0x4456),
-        Some(Instruction::SkipIfNotEqual(0x4, 0x56))
-    );
-    assert_eq!(
-        Instruction::from_u16(&0x5560),
-        Some(Instruction::SkipIfEqualRegister(0x5, 0x6))
-    );
-    assert_eq!(
-        Instruction::from_u16(&0x6678),
-        Some(Instruction::LoadConst(0x6, 0x78))
-    );
-    assert_eq!(
-        Instruction::from_u16(&0x7789),
-        Some(Instruction::AddConst(0x7, 0x89))
-    );
+    assert_eq!(Instruction::from_u16(&0x1123),
+               Some(Instruction::JumpToAddress(0x0123)));
+    assert_eq!(Instruction::from_u16(&0x2234),
+               Some(Instruction::CallSubroutine(0x0234)));
+    assert_eq!(Instruction::from_u16(&0x3345),
+               Some(Instruction::SkipIfEqual(0x3, 0x45)));
+    assert_eq!(Instruction::from_u16(&0x4456),
+               Some(Instruction::SkipIfNotEqual(0x4, 0x56)));
+    assert_eq!(Instruction::from_u16(&0x5560),
+               Some(Instruction::SkipIfEqualRegister(0x5, 0x6)));
+    assert_eq!(Instruction::from_u16(&0x6678),
+               Some(Instruction::LoadConst(0x6, 0x78)));
+    assert_eq!(Instruction::from_u16(&0x7789),
+               Some(Instruction::AddConst(0x7, 0x89)));
 
-    assert_eq!(
-        Instruction::from_u16(&0x8890),
-        Some(Instruction::AssignValue(0x8, 0x9))
-    );
-    assert_eq!(
-        Instruction::from_u16(&0x8891),
-        Some(Instruction::SetOr(0x8, 0x9))
-    );
-    assert_eq!(
-        Instruction::from_u16(&0x8892),
-        Some(Instruction::SetAnd(0x8, 0x9))
-    );
-    assert_eq!(
-        Instruction::from_u16(&0x8893),
-        Some(Instruction::SetXor(0x8, 0x9))
-    );
-    assert_eq!(
-        Instruction::from_u16(&0x8894),
-        Some(Instruction::Add(0x8, 0x9))
-    );
-    assert_eq!(
-        Instruction::from_u16(&0x8895),
-        Some(Instruction::Subtract(0x8, 0x9))
-    );
-    assert_eq!(
-        Instruction::from_u16(&0x8896),
-        Some(Instruction::ShiftRight(0x8, 0x9))
-    );
-    assert_eq!(
-        Instruction::from_u16(&0x8897),
-        Some(Instruction::Reduce(0x8, 0x9))
-    );
-    assert_eq!(
-        Instruction::from_u16(&0x889e),
-        Some(Instruction::ShiftLeft(0x8, 0x9))
-    );
+    assert_eq!(Instruction::from_u16(&0x8890),
+               Some(Instruction::AssignValue(0x8, 0x9)));
+    assert_eq!(Instruction::from_u16(&0x8891),
+               Some(Instruction::SetOr(0x8, 0x9)));
+    assert_eq!(Instruction::from_u16(&0x8892),
+               Some(Instruction::SetAnd(0x8, 0x9)));
+    assert_eq!(Instruction::from_u16(&0x8893),
+               Some(Instruction::SetXor(0x8, 0x9)));
+    assert_eq!(Instruction::from_u16(&0x8894),
+               Some(Instruction::Add(0x8, 0x9)));
+    assert_eq!(Instruction::from_u16(&0x8895),
+               Some(Instruction::Subtract(0x8, 0x9)));
+    assert_eq!(Instruction::from_u16(&0x8896),
+               Some(Instruction::ShiftRight(0x8, 0x9)));
+    assert_eq!(Instruction::from_u16(&0x8897),
+               Some(Instruction::Reduce(0x8, 0x9)));
+    assert_eq!(Instruction::from_u16(&0x889e),
+               Some(Instruction::ShiftLeft(0x8, 0x9)));
 
-    assert_eq!(
-        Instruction::from_u16(&0x9910),
-        Some(Instruction::SkipIfNotEqualRegister(0x9, 0x1))
-    );
-    assert_eq!(
-        Instruction::from_u16(&0xabcd),
-        Some(Instruction::SetMemoryAddress(0xbcd))
-    );
-    assert_eq!(
-        Instruction::from_u16(&0xbcde),
-        Some(Instruction::JumpToV0Address(0xcde))
-    );
-    assert_eq!(
-        Instruction::from_u16(&0xcdef),
-        Some(Instruction::BitwiseRandom(0xd, 0xef))
-    );
-    assert_eq!(
-        Instruction::from_u16(&0xd12f),
-        Some(Instruction::DrawSprite(0x1, 0x2, 0xf))
-    );
-    assert_eq!(
-        Instruction::from_u16(&0xef9e),
-        Some(Instruction::SkipIfPressed(0xf))
-    );
-    assert_eq!(
-        Instruction::from_u16(&0xeaa1),
-        Some(Instruction::SkipIfNotPressed(0xa))
-    );
+    assert_eq!(Instruction::from_u16(&0x9910),
+               Some(Instruction::SkipIfNotEqualRegister(0x9, 0x1)));
+    assert_eq!(Instruction::from_u16(&0xabcd),
+               Some(Instruction::SetMemoryAddress(0xbcd)));
+    assert_eq!(Instruction::from_u16(&0xbcde),
+               Some(Instruction::JumpToV0Address(0xcde)));
+    assert_eq!(Instruction::from_u16(&0xcdef),
+               Some(Instruction::BitwiseRandom(0xd, 0xef)));
+    assert_eq!(Instruction::from_u16(&0xd12f),
+               Some(Instruction::DrawSprite(0x1, 0x2, 0xf)));
+    assert_eq!(Instruction::from_u16(&0xef9e),
+               Some(Instruction::SkipIfPressed(0xf)));
+    assert_eq!(Instruction::from_u16(&0xeaa1),
+               Some(Instruction::SkipIfNotPressed(0xa)));
 
-    assert_eq!(
-        Instruction::from_u16(&0xf107),
-        Some(Instruction::LoadDelay(0x1))
-    );
-    assert_eq!(
-        Instruction::from_u16(&0xf20a),
-        Some(Instruction::WaitForPress(0x2))
-    );
-    assert_eq!(
-        Instruction::from_u16(&0xf315),
-        Some(Instruction::SetDelay(0x3))
-    );
-    assert_eq!(
-        Instruction::from_u16(&0xf418),
-        Some(Instruction::SetSound(0x4))
-    );
-    assert_eq!(
-        Instruction::from_u16(&0xf51e),
-        Some(Instruction::AddOffset(0x5))
-    );
-    assert_eq!(
-        Instruction::from_u16(&0xf629),
-        Some(Instruction::SetMemoryForFont(0x6))
-    );
-    assert_eq!(
-        Instruction::from_u16(&0xf733),
-        Some(Instruction::SetBCD(0x7))
-    );
-    assert_eq!(
-        Instruction::from_u16(&0xf855),
-        Some(Instruction::DumpReg(0x8))
-    );
-    assert_eq!(
-        Instruction::from_u16(&0xf965),
-        Some(Instruction::LoadReg(0x9))
-    );
+    assert_eq!(Instruction::from_u16(&0xf107),
+               Some(Instruction::LoadDelay(0x1)));
+    assert_eq!(Instruction::from_u16(&0xf20a),
+               Some(Instruction::WaitForPress(0x2)));
+    assert_eq!(Instruction::from_u16(&0xf315),
+               Some(Instruction::SetDelay(0x3)));
+    assert_eq!(Instruction::from_u16(&0xf418),
+               Some(Instruction::SetSound(0x4)));
+    assert_eq!(Instruction::from_u16(&0xf51e),
+               Some(Instruction::AddOffset(0x5)));
+    assert_eq!(Instruction::from_u16(&0xf629),
+               Some(Instruction::SetMemoryForFont(0x6)));
+    assert_eq!(Instruction::from_u16(&0xf733),
+               Some(Instruction::SetBCD(0x7)));
+    assert_eq!(Instruction::from_u16(&0xf855),
+               Some(Instruction::DumpReg(0x8)));
+    assert_eq!(Instruction::from_u16(&0xf965),
+               Some(Instruction::LoadReg(0x9)));
 }
 
 #[test]
@@ -324,7 +258,7 @@ fn test_subtract() {
 #[test]
 fn test_shift_right() {
     let mut cpu = CPU::new(&vec![], None);
-    cpu.regs[0x4] = 0b00000000; 
+    cpu.regs[0x4] = 0b00000000;
     cpu.regs[0x5] = 0b11101110;
     cpu.do_instruction(&Instruction::ShiftRight(0x4, 0x5));
     assert_eq!(cpu.pc, 0x202);
@@ -332,7 +266,7 @@ fn test_shift_right() {
     assert_eq!(cpu.regs[0x5], 0b11101110);
     assert_eq!(cpu.regs[0xf], 0);
 
-    cpu.regs[0x4] = 0b00000000; 
+    cpu.regs[0x4] = 0b00000000;
     cpu.regs[0x5] = 0b01110111;
     cpu.do_instruction(&Instruction::ShiftRight(0x4, 0x5));
     assert_eq!(cpu.regs[0x4], 0b00111011);
@@ -343,7 +277,7 @@ fn test_shift_right() {
 #[test]
 fn test_reduce() {
     let mut cpu = CPU::new(&vec![], None);
-    cpu.regs[0x4] = 1; 
+    cpu.regs[0x4] = 1;
     cpu.regs[0x5] = 243;
     cpu.do_instruction(&Instruction::Reduce(0x4, 0x5));
     assert_eq!(cpu.pc, 0x202);
@@ -351,7 +285,7 @@ fn test_reduce() {
     assert_eq!(cpu.regs[0x5], 243);
     assert_eq!(cpu.regs[0xf], 1);
 
-    cpu.regs[0x4] = 3; 
+    cpu.regs[0x4] = 3;
     cpu.regs[0x5] = 2;
     cpu.do_instruction(&Instruction::Reduce(0x4, 0x5));
     assert_eq!(cpu.pc, 0x204);
@@ -363,7 +297,7 @@ fn test_reduce() {
 #[test]
 fn test_shift_left() {
     let mut cpu = CPU::new(&vec![], None);
-    cpu.regs[0x4] = 0b00000000; 
+    cpu.regs[0x4] = 0b00000000;
     cpu.regs[0x5] = 0b11101110;
     cpu.do_instruction(&Instruction::ShiftLeft(0x4, 0x5));
     assert_eq!(cpu.pc, 0x202);
@@ -371,7 +305,7 @@ fn test_shift_left() {
     assert_eq!(cpu.regs[0x5], 0b11101110);
     assert_eq!(cpu.regs[0xf], 1);
 
-    cpu.regs[0x4] = 0b00000000; 
+    cpu.regs[0x4] = 0b00000000;
     cpu.regs[0x5] = 0b01110111;
     cpu.do_instruction(&Instruction::ShiftLeft(0x4, 0x5));
     assert_eq!(cpu.regs[0x4], 0b11101110);
@@ -469,9 +403,8 @@ fn test_load_reg() {
     cpu.address = 0x0300;
     cpu.memory.set_position(cpu.address as u64);
     cpu.memory
-        .write_all(&[
-            0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf, 0x10,
-        ])
+        .write_all(&[0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf,
+                     0x10])
         .unwrap();
     cpu.do_instruction(&Instruction::LoadReg(0xe));
     assert_eq!(cpu.pc, 0x202);

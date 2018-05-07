@@ -31,7 +31,7 @@ impl BitRange for u32 {
 
         ((self >> range.start) & mask) as u16
     }
-} 
+}
 
 impl BitRange for u16 {
     fn range_u8(&self, range: Range<usize>) -> u8 {

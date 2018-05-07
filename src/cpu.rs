@@ -64,12 +64,10 @@ impl CPU {
                 for x in 0..64 {
                     if self.grid[(y * 64) + x] == 1 {
                         canvas
-                            .fill_rect(Rect::new(
-                                (x as u8) as i32 * 10,
-                                (y as u8) as i32 * 10,
-                                10,
-                                10,
-                            ))
+                            .fill_rect(Rect::new((x as u8) as i32 * 10,
+                                                 (y as u8) as i32 * 10,
+                                                 10,
+                                                 10))
                             .unwrap();
                     }
                 }
@@ -243,9 +241,9 @@ impl CPU {
                     let row = self.memory.read_u8().unwrap();
 
                     for x in 0..8 {
-                        let grid_pos = (((y as u16 + start_y as u16) * 64)
-                            + (x as u16 + start_x as u16))
-                            as usize;
+                        let grid_pos = (((y as u16 + start_y as u16) * 64) +
+                                        (x as u16 + start_x as u16)) as
+                                       usize;
                         if (row >> 7 - x) & 1 != 0 {
                             self.regs[0xf] = (self.grid[grid_pos] == 1) as u8;
                             self.grid[grid_pos] ^= 1;

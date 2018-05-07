@@ -60,64 +60,29 @@ fn main() {
     'running: loop {
         for event in event_pump.poll_iter() {
             match event {
-                Event::Quit { .. }
-                | Event::KeyDown {
-                    keycode: Some(Keycode::Escape),
-                    ..
-                } => break 'running,
+                Event::Quit { .. } |
+                Event::KeyDown { keycode: Some(Keycode::Escape), .. } => break 'running,
 
-                Event::KeyDown {
-                    keycode: Some(Keycode::Space), .. 
-                } => cpu.keys[15] ^= 1,
+                Event::KeyDown { keycode: Some(Keycode::Space), .. } => cpu.keys[15] ^= 1,
 
-                Event::KeyDown {
-                    keycode: Some(Keycode::Left),
-                    ..
-                } => cpu.keys[4] = 1,
-                Event::KeyDown {
-                    keycode: Some(Keycode::Right),
-                    ..
-                } => cpu.keys[6] = 1,
-                Event::KeyDown {
-                    keycode: Some(Keycode::Up),
-                    ..
-                } => cpu.keys[8] = 1,
-                Event::KeyDown {
-                    keycode: Some(Keycode::Down),
-                    ..
-                } => cpu.keys[2] = 1,
-                Event::KeyDown {
-                    keycode: Some(Keycode::Return),
-                    ..
-                } => cpu.keys[5] = 1,
+                Event::KeyDown { keycode: Some(Keycode::Left), .. } => cpu.keys[4] = 1,
+                Event::KeyDown { keycode: Some(Keycode::Right), .. } => cpu.keys[6] = 1,
+                Event::KeyDown { keycode: Some(Keycode::Up), .. } => cpu.keys[8] = 1,
+                Event::KeyDown { keycode: Some(Keycode::Down), .. } => cpu.keys[2] = 1,
+                Event::KeyDown { keycode: Some(Keycode::Return), .. } => cpu.keys[5] = 1,
 
-                Event::KeyUp {
-                    keycode: Some(Keycode::Left),
-                    ..
-                } => cpu.keys[4] = 0,
-                Event::KeyUp {
-                    keycode: Some(Keycode::Right),
-                    ..
-                } => cpu.keys[6] = 0,
-                Event::KeyUp {
-                    keycode: Some(Keycode::Up),
-                    ..
-                } => cpu.keys[8] = 0,
-                Event::KeyUp {
-                    keycode: Some(Keycode::Down),
-                    ..
-                } => cpu.keys[2] = 0,
-                Event::KeyUp {
-                    keycode: Some(Keycode::Return),
-                    ..
-                } => cpu.keys[5] = 0,
+                Event::KeyUp { keycode: Some(Keycode::Left), .. } => cpu.keys[4] = 0,
+                Event::KeyUp { keycode: Some(Keycode::Right), .. } => cpu.keys[6] = 0,
+                Event::KeyUp { keycode: Some(Keycode::Up), .. } => cpu.keys[8] = 0,
+                Event::KeyUp { keycode: Some(Keycode::Down), .. } => cpu.keys[2] = 0,
+                Event::KeyUp { keycode: Some(Keycode::Return), .. } => cpu.keys[5] = 0,
 
                 _ => {}
             }
         }
 
         if cpu.keys[15] != 1 {
-            if cpu_last.elapsed() >= CPU_TICK { 
+            if cpu_last.elapsed() >= CPU_TICK {
                 let raw = cpu.fetch_opcode().unwrap();
                 if let Some(instruction) = Instruction::from_u16(&raw) {
                     cpu.do_instruction(&instruction);
