@@ -228,10 +228,12 @@ impl CPU {
 
     fn show(&mut self) {
         if let Some(ref mut canvas) = self.display {
+            canvas.set_draw_color(Color::RGB(0, 0, 0));
+            canvas.clear();
+            canvas.set_draw_color(Color::RGB(255, 255, 255));
 
             for y in 0..32 {
                 for x in 0..64 {
-                    // println!("{} {} {}", x, y, self.grid[(y*64) + x]);
                     if self.grid[(y*64) + x] == 1 {
                         canvas
                             .fill_rect(Rect::new(
@@ -250,9 +252,8 @@ impl CPU {
     }
 
     fn clear(&mut self) {
-        if let Some(ref mut canvas) = self.display {
-            canvas.set_draw_color(Color::RGB(0, 0, 0));
-            canvas.clear();
+        for idx in 0..2046 {
+            self.grid[idx] = 0;
         }
     }
 
@@ -285,10 +286,7 @@ impl CPU {
 
         match instruction {
             Instruction::ClearDisplay => {
-                if let Some(ref mut canvas) = self.display {
-                    canvas.set_draw_color(Color::RGB(0, 0, 0));
-                    canvas.clear();
-                }
+                self.clear();
             }
 
             Instruction::Return => {
@@ -413,27 +411,19 @@ impl CPU {
                     let height = *height;
                     self.regs[0xf] = 0;
 
-                    canvas.set_draw_color(Color::RGB(255, 255, 255));
 
                     for y in 0..height { 
                         self.memory.set_position((self.address + y as u16) as u64);
                         let row = self.memory.read_u8().unwrap();
 
-                        println!("{:0b}", row);
-
                         for x in 0..8 {
                             let grid_pos = (((y as u16 + start_y as u16) * 64) + (x as u16 + start_x as u16)) as usize;
-                            if (row >> 7-x) & 1 == 1 {
-                            if (row >> x) & 1 == 1 {
-                                self.grid[grid_pos] = 1;
-                            } else {
+                            if (row >> 7-x) & 1 != 0 {
                                 self.regs[0xf] = (self.grid[grid_pos] == 1) as u8;
-                                self.grid[grid_pos] = 0;
+                                self.grid[grid_pos] ^= 1;
                             }
                         }
                     }
-
-                    // println!("{:?}", self.grid);
                 }
             }
 
@@ -475,14 +465,13 @@ impl CPU {
 
             Instruction::SetMemoryForFont(vx) => {
                 self.address = (self.regs[*vx as usize] * 5) as u16;
-                println!("{:#x} {}", self.address, self.regs[*vx as usize]);
             }
 
             Instruction::SetBCD(vx) => {
                 let val = self.regs[*vx as usize];
 
                 let h = val / 100;
-                let t = (val / 100) % 10;
+                let t = (val / 10) % 10;
                 let d = (val % 100) % 10;
                 self.memory.set_position(self.address as u64);
                 self.memory.write(&[h, t, d]);
@@ -538,7 +527,9 @@ fn main() {
     // data.write_u16::<BigEndian>(0x2204);
     // data.write_u16::<BigEndian>(0x1200);
 
-    // data.write_u16::<BigEndian>(0x6003);
+    // data.write_u16::<BigEndian>(0x600a);
+    // data.write_u16::<BigEndian>(0x6138);
+    // data.write_u16::<BigEndian>(0x6218);
     
     // data.write_u16::<BigEndian>(0xf029);
     // data.write_u16::<BigEndian>(0xd125);
@@ -622,7 +613,7 @@ fn main() {
         if cpu.keys[15] != 1 {
             let raw = cpu.fetch_opcode().unwrap();
             if let Some(instruction) = Instruction::from_u16(&raw) {
-                println!("{:#x} {:#x} {:#?}", cpu.pc, raw, &instruction);
+                // println!("{:#x} {:#x} {:#?}", cpu.pc, raw, &instruction);
                 cpu.do_instruction(&instruction);
             } else {
                 println!("{:#x} {:#x}", cpu.pc, raw);
@@ -1019,6 +1010,37 @@ mod tests {
         cpu.do_instruction(&Instruction::SetMemoryAddress(0x2b4));
         assert_eq!(cpu.pc, 0x202);
         assert_eq!(cpu.address, 0x2b4);
+    }
+
+    #[test]
+    fn test_set_bcd() {
+        let mut cpu = CPU::new(&vec![], None);
+        cpu.address = 0x0300;
+        cpu.regs[0x0] = 129;
+        cpu.do_instruction(&Instruction::SetBCD(0x0));
+        let raw = cpu.memory.clone().into_inner();
+        assert_eq!(raw[0x300], 1);
+        assert_eq!(raw[0x301], 2);
+        assert_eq!(raw[0x302], 9);
+        assert_eq!(raw[0x303], 0);
+
+        cpu.address = 0x0400;
+        cpu.regs[0x1] = 19;
+        cpu.do_instruction(&Instruction::SetBCD(0x1));
+        let raw = cpu.memory.clone().into_inner();
+        assert_eq!(raw[0x400], 0);
+        assert_eq!(raw[0x401], 1);
+        assert_eq!(raw[0x402], 9);
+        assert_eq!(raw[0x403], 0);
+
+        cpu.address = 0x0500;
+        cpu.regs[0x2] = 8;
+        cpu.do_instruction(&Instruction::SetBCD(0x2));
+        let raw = cpu.memory.clone().into_inner();
+        assert_eq!(raw[0x500], 0);
+        assert_eq!(raw[0x501], 0);
+        assert_eq!(raw[0x502], 8);
+        assert_eq!(raw[0x503], 0);
     }
 
     #[test]
