@@ -1,30 +1,20 @@
 extern crate chip8;
-
-extern crate byteorder;
-extern crate num_traits;
 extern crate sdl2;
 
 use std::env;
-use std::fs::File;
-use std::io::{Error, Read};
 use std::time::{Duration, Instant};
+use std::process::exit;
 
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use sdl2::pixels::Color;
 
+use chip8::read_binary;
 use chip8::cpu::CPU;
 use chip8::instructions::Instruction;
 
 const FRAME_TICK: Duration = Duration::from_millis(16);
 const CPU_TICK: Duration = Duration::from_millis(1);
-
-fn read_bin(filename: &String) -> Result<Vec<u8>, Error> {
-    let mut file = File::open(filename)?;
-    let mut buf = Vec::new();
-    file.read_to_end(&mut buf)?;
-    Ok(buf)
-}
 
 fn main() {
     let sdl_context = sdl2::init().unwrap();
@@ -44,7 +34,13 @@ fn main() {
         big_endian = false;
     }
 
-    let data = read_bin(&filename).unwrap();
+    let data = match read_binary(&filename) {
+        Ok(data) => data,
+        Err(e) => {
+            println!("Error reading binary \"{}\": {}", filename, e);
+            exit(1);
+        }
+    };
 
     canvas.set_draw_color(Color::RGB(0, 0, 0));
     canvas.clear();

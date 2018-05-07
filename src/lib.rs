@@ -1,6 +1,7 @@
 extern crate byteorder;
 extern crate rand;
 extern crate sdl2;
+#[macro_use] extern crate failure;
 
 mod bitrange;
 pub mod instructions;
@@ -24,3 +25,14 @@ pub const FONT4X5: [u8; 80] = [
     0xf0, 0x80, 0xf0, 0x80, 0xf0, // E
     0xf0, 0x80, 0xf0, 0x80, 0x80, // F
 ];
+
+use std::fs::File;
+use std::io::Read;
+use failure::Error;
+
+pub fn read_binary(filename: &String) -> Result<Vec<u8>, Error> {
+    let mut file = File::open(filename)?;
+    let mut buf = Vec::new();
+    file.read_to_end(&mut buf)?;
+    Ok(buf)
+}
