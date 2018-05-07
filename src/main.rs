@@ -2,29 +2,19 @@ extern crate chip8;
 
 extern crate byteorder;
 extern crate num_traits;
-#[macro_use]
-extern crate enum_primitive_derive;
 extern crate sdl2;
 
 use std::env;
 use std::fs::File;
-use std::io::{Cursor, Error, Read, Write};
+use std::io::{Error, Read};
 use std::time::{Duration, Instant};
 
-use byteorder::{BigEndian, LittleEndian, ReadBytesExt};
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use sdl2::pixels::Color;
-use sdl2::rect::Rect;
-use sdl2::render::Canvas;
-use sdl2::video::Window;
-
-mod bitrange;
-use bitrange::BitRange;
 
 use chip8::cpu::CPU;
 use chip8::instructions::Instruction;
-
 
 const FRAME_TICK: Duration = Duration::from_millis(16);
 const CPU_TICK: Duration = Duration::from_millis(1);

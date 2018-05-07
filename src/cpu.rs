@@ -1,15 +1,15 @@
-use std::io::{Cursor, Error, Read, Write};
+use std::io::{Cursor, Error, Write};
 
 use sdl2::pixels::Color;
 use sdl2::rect::Rect;
 use sdl2::render::Canvas;
 use sdl2::video::Window;
 
-use rand;
 use byteorder::{BigEndian, LittleEndian, ReadBytesExt};
+use rand;
 
-use ::instructions::Instruction;
-use ::FONT4X5;
+use instructions::Instruction;
+use FONT4X5;
 
 pub struct CPU {
     pub regs: [u8; 16],
@@ -62,7 +62,7 @@ impl CPU {
 
             for y in 0..32 {
                 for x in 0..64 {
-                    if self.grid[(y*64) + x] == 1 {
+                    if self.grid[(y * 64) + x] == 1 {
                         canvas
                             .fill_rect(Rect::new(
                                 (x as u8) as i32 * 10,
@@ -233,23 +233,22 @@ impl CPU {
             }
 
             Instruction::DrawSprite(vx, vy, height) => {
-                if let Some(ref mut canvas) = self.display {
-                    let start_x = self.regs[*vx as usize];
-                    let start_y = self.regs[*vy as usize];
-                    let height = *height;
-                    self.regs[0xf] = 0;
+                let start_x = self.regs[*vx as usize];
+                let start_y = self.regs[*vy as usize];
+                let height = *height;
+                self.regs[0xf] = 0;
 
+                for y in 0..height {
+                    self.memory.set_position((self.address + y as u16) as u64);
+                    let row = self.memory.read_u8().unwrap();
 
-                    for y in 0..height { 
-                        self.memory.set_position((self.address + y as u16) as u64);
-                        let row = self.memory.read_u8().unwrap();
-
-                        for x in 0..8 {
-                            let grid_pos = (((y as u16 + start_y as u16) * 64) + (x as u16 + start_x as u16)) as usize;
-                            if (row >> 7-x) & 1 != 0 {
-                                self.regs[0xf] = (self.grid[grid_pos] == 1) as u8;
-                                self.grid[grid_pos] ^= 1;
-                            }
+                    for x in 0..8 {
+                        let grid_pos = (((y as u16 + start_y as u16) * 64)
+                            + (x as u16 + start_x as u16))
+                            as usize;
+                        if (row >> 7 - x) & 1 != 0 {
+                            self.regs[0xf] = (self.grid[grid_pos] == 1) as u8;
+                            self.grid[grid_pos] ^= 1;
                         }
                     }
                 }
@@ -320,8 +319,6 @@ impl CPU {
                     self.address += 1;
                 }
             }
-
-            _ => (),
         }
 
         if should_increment {

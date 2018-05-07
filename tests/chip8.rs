@@ -1,9 +1,9 @@
 extern crate chip8;
 extern crate byteorder;
 
-use std::io::{Cursor, Error, Read, Write};
+use std::io::Write;
 
-use byteorder::{ByteOrder, LittleEndian, WriteBytesExt, BigEndian};
+use byteorder::{ByteOrder, WriteBytesExt, BigEndian};
 use chip8::cpu::CPU;
 use chip8::instructions::Instruction;
 
@@ -476,9 +476,7 @@ fn test_load_reg() {
     cpu.do_instruction(&Instruction::LoadReg(0xe));
     assert_eq!(cpu.pc, 0x202);
 
-    let raw = cpu.memory.into_inner();
     assert_eq!(cpu.address, 0x30f);
-
     assert_eq!(cpu.regs[0x0], 0x01);
     assert_eq!(cpu.regs[0x1], 0x02);
     assert_eq!(cpu.regs[0x2], 0x03);

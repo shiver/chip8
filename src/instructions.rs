@@ -2,9 +2,7 @@ use bitrange::BitRange;
 
 type GPR = u8;
 type Address = u16;
-
 type HalfWord = u8;
-type Word = u16;
 
 #[derive(Debug, PartialEq)]
 pub enum Instruction {
