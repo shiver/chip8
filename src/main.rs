@@ -423,6 +423,7 @@ impl CPU {
 
                         for x in 0..8 {
                             let grid_pos = (((y as u16 + start_y as u16) * 64) + (x as u16 + start_x as u16)) as usize;
+                            if (row >> 7-x) & 1 == 1 {
                             if (row >> x) & 1 == 1 {
                                 self.grid[grid_pos] = 1;
                             } else {
