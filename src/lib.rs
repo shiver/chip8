@@ -7,6 +7,17 @@ mod bitrange;
 pub mod instructions;
 pub mod cpu;
 
+use std::fs::File;
+use std::io::Read;
+
+pub use failure::{Error, Fail};
+
+use sdl2::render::Canvas;
+use sdl2::video::Window;
+use sdl2::EventPump;
+use sdl2::Sdl;
+
+
 pub const FONT4X5: [u8; 80] = [
     0xf0, 0x90, 0x90, 0x90, 0xf0, // 0
     0x20, 0x60, 0x20, 0x20, 0x70, // 1
@@ -26,9 +37,14 @@ pub const FONT4X5: [u8; 80] = [
     0xf0, 0x80, 0xf0, 0x80, 0x80, // F
 ];
 
-use std::fs::File;
-use std::io::Read;
-use failure::Error;
+pub struct Context {
+    pub sdl_context: Option<Sdl>,
+    pub canvas: Option<Canvas<Window>>,
+    pub events: Option<EventPump>,
+    pub grid: Vec<u8>,
+    pub key_map: [u8; 16]
+}
+
 
 pub fn read_binary(filename: &String) -> Result<Vec<u8>, Error> {
     let mut file = File::open(filename)?;
