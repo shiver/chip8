@@ -25,7 +25,6 @@ pub struct CPU {
     pub keys: [u8; 16],
     pub display: Option<Canvas<Window>>,
     pub grid: Vec<u8>,
-    pub big_endian: bool,
 }
 
 impl CPU {
@@ -50,7 +49,6 @@ impl CPU {
             keys: [0; 16],
             display: display,
             grid: vec![0; 2048],
-            big_endian: true,
         }
     }
 
@@ -89,11 +87,7 @@ impl CPU {
 
     pub fn fetch_opcode(&mut self) -> Result<u16, Error> {
         self.memory.set_position(self.pc as u64);
-        if self.big_endian {
-            self.memory.read_u16::<BigEndian>()
-        } else {
-            self.memory.read_u16::<LittleEndian>()
-        }
+        self.memory.read_u16::<BigEndian>()
     }
 
     fn timer_tick(&mut self) {

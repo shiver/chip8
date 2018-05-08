@@ -29,10 +29,6 @@ fn main() {
     let mut canvas = window.into_canvas().build().unwrap();
 
     let filename = env::args().nth(1).expect("filename?");
-    let mut big_endian = true;
-    if let Some(nd) = env::args().nth(2) {
-        big_endian = false;
-    }
 
     let data = match read_binary(&filename) {
         Ok(data) => data,
@@ -47,7 +43,6 @@ fn main() {
     canvas.present();
 
     let mut cpu = CPU::new(&data, Some(canvas));
-    cpu.big_endian = big_endian;
 
     let mut event_pump = sdl_context.event_pump().unwrap();
 
