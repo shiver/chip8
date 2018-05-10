@@ -95,7 +95,7 @@ fn test_clear_and_basics() {
 
     let instruction = Instruction::from_u16(&raw);
     assert_eq!(instruction, Some(Instruction::ClearDisplay));
-    cpu.do_instruction(&instruction.unwrap());
+    cpu.do_instruction(&instruction.unwrap()).unwrap();
     assert_eq!(cpu.pc, 0x202);
 }
 
@@ -103,7 +103,7 @@ fn test_clear_and_basics() {
 fn test_return() {
     let mut cpu = CPU::new(&vec![], None);
     cpu.stack.push(0x400);
-    cpu.do_instruction(&Instruction::Return);
+    cpu.do_instruction(&Instruction::Return).unwrap();
     assert_eq!(cpu.stack.len(), 0);
     assert_eq!(cpu.pc, 0x402);
 }
@@ -111,7 +111,8 @@ fn test_return() {
 #[test]
 fn test_jump_to_address() {
     let mut cpu = CPU::new(&vec![], None);
-    cpu.do_instruction(&Instruction::JumpToAddress(0x412));
+    cpu.do_instruction(&Instruction::JumpToAddress(0x412))
+        .unwrap();
     assert_eq!(cpu.pc, 0x412);
 }
 
@@ -119,7 +120,8 @@ fn test_jump_to_address() {
 fn test_call_subroutine() {
     let mut cpu = CPU::new(&vec![], None);
     cpu.pc = 0x655;
-    cpu.do_instruction(&Instruction::CallSubroutine(0x595));
+    cpu.do_instruction(&Instruction::CallSubroutine(0x595))
+        .unwrap();
     assert_eq!(cpu.stack, vec![0x655]);
     assert_eq!(cpu.pc, 0x595);
 }
@@ -129,11 +131,13 @@ fn test_skip_if_equal() {
     let mut cpu = CPU::new(&vec![], None);
     cpu.pc = 0x655;
     cpu.regs[0x5] = 0x23;
-    cpu.do_instruction(&Instruction::SkipIfEqual(0x5, 0x23));
+    cpu.do_instruction(&Instruction::SkipIfEqual(0x5, 0x23))
+        .unwrap();
     assert_eq!(cpu.pc, 0x659);
 
     cpu.regs[0x5] = 0x24;
-    cpu.do_instruction(&Instruction::SkipIfEqual(0x5, 0x23));
+    cpu.do_instruction(&Instruction::SkipIfEqual(0x5, 0x23))
+        .unwrap();
     assert_eq!(cpu.pc, 0x65B);
 }
 
@@ -142,11 +146,13 @@ fn test_skip_if_not_equal() {
     let mut cpu = CPU::new(&vec![], None);
     cpu.pc = 0x655;
     cpu.regs[0x5] = 0x24;
-    cpu.do_instruction(&Instruction::SkipIfEqual(0x5, 0x23));
+    cpu.do_instruction(&Instruction::SkipIfEqual(0x5, 0x23))
+        .unwrap();
     assert_eq!(cpu.pc, 0x657);
 
     cpu.regs[0x5] = 0x23;
-    cpu.do_instruction(&Instruction::SkipIfEqual(0x5, 0x23));
+    cpu.do_instruction(&Instruction::SkipIfEqual(0x5, 0x23))
+        .unwrap();
     assert_eq!(cpu.pc, 0x65B);
 }
 
@@ -156,13 +162,15 @@ fn test_skip_if_equal_register() {
     cpu.pc = 0x655;
     cpu.regs[0x5] = 0x14;
     cpu.regs[0x6] = 0x14;
-    cpu.do_instruction(&Instruction::SkipIfEqualRegister(0x5, 0x6));
+    cpu.do_instruction(&Instruction::SkipIfEqualRegister(0x5, 0x6))
+        .unwrap();
     assert_eq!(cpu.pc, 0x659);
 
     cpu.pc = 0x655;
     cpu.regs[0x5] = 0x04;
     cpu.regs[0x6] = 0x14;
-    cpu.do_instruction(&Instruction::SkipIfEqualRegister(0x5, 0x6));
+    cpu.do_instruction(&Instruction::SkipIfEqualRegister(0x5, 0x6))
+        .unwrap();
     assert_eq!(cpu.pc, 0x657);
 }
 
@@ -170,7 +178,8 @@ fn test_skip_if_equal_register() {
 fn test_load_const() {
     let mut cpu = CPU::new(&vec![], None);
     cpu.regs[0xe] = 0x0;
-    cpu.do_instruction(&Instruction::LoadConst(0xe, 0x6A));
+    cpu.do_instruction(&Instruction::LoadConst(0xe, 0x6A))
+        .unwrap();
     assert_eq!(cpu.pc, 0x202);
     assert_eq!(cpu.regs[0xe], 0x6a);
 }
@@ -179,7 +188,8 @@ fn test_load_const() {
 fn test_add_const() {
     let mut cpu = CPU::new(&vec![], None);
     cpu.regs[0x1] = 0x12;
-    cpu.do_instruction(&Instruction::AddConst(0x1, 0x13));
+    cpu.do_instruction(&Instruction::AddConst(0x1, 0x13))
+        .unwrap();
     assert_eq!(cpu.pc, 0x202);
     assert_eq!(cpu.regs[0x1], 0x25);
 }
@@ -189,12 +199,14 @@ fn test_assign_value() {
     let mut cpu = CPU::new(&vec![], None);
     cpu.regs[0x2] = 0xff;
     cpu.regs[0x3] = 0xaa;
-    cpu.do_instruction(&Instruction::AssignValue(0x2, 0x3));
+    cpu.do_instruction(&Instruction::AssignValue(0x2, 0x3))
+        .unwrap();
     assert_eq!(cpu.pc, 0x202);
     assert_eq!(cpu.regs[0x2], 0xaa);
 
     cpu.regs[0x2] = 0xff;
-    cpu.do_instruction(&Instruction::AssignValue(0x3, 0x2));
+    cpu.do_instruction(&Instruction::AssignValue(0x3, 0x2))
+        .unwrap();
     assert_eq!(cpu.pc, 0x204);
     assert_eq!(cpu.regs[0x3], 0xff);
 }
@@ -204,7 +216,7 @@ fn test_set_or() {
     let mut cpu = CPU::new(&vec![], None);
     cpu.regs[0x2] = 0x01;
     cpu.regs[0x3] = 0x03;
-    cpu.do_instruction(&Instruction::SetOr(0x2, 0x3));
+    cpu.do_instruction(&Instruction::SetOr(0x2, 0x3)).unwrap();
     assert_eq!(cpu.pc, 0x202);
     assert_eq!(cpu.regs[0x2], 0x03);
     assert_eq!(cpu.regs[0x3], 0x03);
@@ -215,7 +227,7 @@ fn test_set_and() {
     let mut cpu = CPU::new(&vec![], None);
     cpu.regs[0x2] = 0b11;
     cpu.regs[0x3] = 0b10;
-    cpu.do_instruction(&Instruction::SetAnd(0x2, 0x3));
+    cpu.do_instruction(&Instruction::SetAnd(0x2, 0x3)).unwrap();
     assert_eq!(cpu.pc, 0x202);
     assert_eq!(cpu.regs[0x2], 0b10);
     assert_eq!(cpu.regs[0x3], 0b10);
@@ -226,14 +238,14 @@ fn test_add() {
     let mut cpu = CPU::new(&vec![], None);
     cpu.regs[0x2] = 253;
     cpu.regs[0x3] = 1;
-    cpu.do_instruction(&Instruction::Add(0x2, 0x3));
+    cpu.do_instruction(&Instruction::Add(0x2, 0x3)).unwrap();
     assert_eq!(cpu.pc, 0x202);
     assert_eq!(cpu.regs[0x2], 254);
     assert_eq!(cpu.regs[0xf], 0);
 
     cpu.regs[0x2] = 254;
     cpu.regs[0x3] = 3;
-    cpu.do_instruction(&Instruction::Add(0x2, 0x3));
+    cpu.do_instruction(&Instruction::Add(0x2, 0x3)).unwrap();
     assert_eq!(cpu.regs[0x2], 1);
     assert_eq!(cpu.regs[0xf], 1);
 }
@@ -243,14 +255,16 @@ fn test_subtract() {
     let mut cpu = CPU::new(&vec![], None);
     cpu.regs[0x2] = 2;
     cpu.regs[0x3] = 1;
-    cpu.do_instruction(&Instruction::Subtract(0x2, 0x3));
+    cpu.do_instruction(&Instruction::Subtract(0x2, 0x3))
+        .unwrap();
     assert_eq!(cpu.pc, 0x202);
     assert_eq!(cpu.regs[0x2], 1);
     assert_eq!(cpu.regs[0xf], 1);
 
     cpu.regs[0x2] = 1;
     cpu.regs[0x3] = 2;
-    cpu.do_instruction(&Instruction::Subtract(0x2, 0x3));
+    cpu.do_instruction(&Instruction::Subtract(0x2, 0x3))
+        .unwrap();
     assert_eq!(cpu.regs[0x2], 255);
     assert_eq!(cpu.regs[0xf], 0);
 }
@@ -260,7 +274,8 @@ fn test_shift_right() {
     let mut cpu = CPU::new(&vec![], None);
     cpu.regs[0x4] = 0b00000000;
     cpu.regs[0x5] = 0b11101110;
-    cpu.do_instruction(&Instruction::ShiftRight(0x4, 0x5));
+    cpu.do_instruction(&Instruction::ShiftRight(0x4, 0x5))
+        .unwrap();
     assert_eq!(cpu.pc, 0x202);
     assert_eq!(cpu.regs[0x4], 0b01110111);
     assert_eq!(cpu.regs[0x5], 0b11101110);
@@ -268,7 +283,8 @@ fn test_shift_right() {
 
     cpu.regs[0x4] = 0b00000000;
     cpu.regs[0x5] = 0b01110111;
-    cpu.do_instruction(&Instruction::ShiftRight(0x4, 0x5));
+    cpu.do_instruction(&Instruction::ShiftRight(0x4, 0x5))
+        .unwrap();
     assert_eq!(cpu.regs[0x4], 0b00111011);
     assert_eq!(cpu.regs[0x5], 0b01110111);
     assert_eq!(cpu.regs[0xf], 1);
@@ -279,7 +295,7 @@ fn test_reduce() {
     let mut cpu = CPU::new(&vec![], None);
     cpu.regs[0x4] = 1;
     cpu.regs[0x5] = 243;
-    cpu.do_instruction(&Instruction::Reduce(0x4, 0x5));
+    cpu.do_instruction(&Instruction::Reduce(0x4, 0x5)).unwrap();
     assert_eq!(cpu.pc, 0x202);
     assert_eq!(cpu.regs[0x4], 242);
     assert_eq!(cpu.regs[0x5], 243);
@@ -287,7 +303,7 @@ fn test_reduce() {
 
     cpu.regs[0x4] = 3;
     cpu.regs[0x5] = 2;
-    cpu.do_instruction(&Instruction::Reduce(0x4, 0x5));
+    cpu.do_instruction(&Instruction::Reduce(0x4, 0x5)).unwrap();
     assert_eq!(cpu.pc, 0x204);
     assert_eq!(cpu.regs[0x4], 255);
     assert_eq!(cpu.regs[0x5], 2);
@@ -299,7 +315,8 @@ fn test_shift_left() {
     let mut cpu = CPU::new(&vec![], None);
     cpu.regs[0x4] = 0b00000000;
     cpu.regs[0x5] = 0b11101110;
-    cpu.do_instruction(&Instruction::ShiftLeft(0x4, 0x5));
+    cpu.do_instruction(&Instruction::ShiftLeft(0x4, 0x5))
+        .unwrap();
     assert_eq!(cpu.pc, 0x202);
     assert_eq!(cpu.regs[0x4], 0b11011100);
     assert_eq!(cpu.regs[0x5], 0b11101110);
@@ -307,7 +324,8 @@ fn test_shift_left() {
 
     cpu.regs[0x4] = 0b00000000;
     cpu.regs[0x5] = 0b01110111;
-    cpu.do_instruction(&Instruction::ShiftLeft(0x4, 0x5));
+    cpu.do_instruction(&Instruction::ShiftLeft(0x4, 0x5))
+        .unwrap();
     assert_eq!(cpu.regs[0x4], 0b11101110);
     assert_eq!(cpu.regs[0x5], 0b01110111);
     assert_eq!(cpu.regs[0xf], 0);
@@ -318,7 +336,8 @@ fn test_set_memory_address() {
     let mut cpu = CPU::new(&vec![], None);
     assert_eq!(cpu.address, 0x0);
     assert_eq!(cpu.pc, 0x200);
-    cpu.do_instruction(&Instruction::SetMemoryAddress(0x2b4));
+    cpu.do_instruction(&Instruction::SetMemoryAddress(0x2b4))
+        .unwrap();
     assert_eq!(cpu.pc, 0x202);
     assert_eq!(cpu.address, 0x2b4);
 }
@@ -328,7 +347,7 @@ fn test_set_bcd() {
     let mut cpu = CPU::new(&vec![], None);
     cpu.address = 0x0300;
     cpu.regs[0x0] = 129;
-    cpu.do_instruction(&Instruction::SetBCD(0x0));
+    cpu.do_instruction(&Instruction::SetBCD(0x0)).unwrap();
     let raw = cpu.memory.clone().into_inner();
     assert_eq!(raw[0x300], 1);
     assert_eq!(raw[0x301], 2);
@@ -337,7 +356,7 @@ fn test_set_bcd() {
 
     cpu.address = 0x0400;
     cpu.regs[0x1] = 19;
-    cpu.do_instruction(&Instruction::SetBCD(0x1));
+    cpu.do_instruction(&Instruction::SetBCD(0x1)).unwrap();
     let raw = cpu.memory.clone().into_inner();
     assert_eq!(raw[0x400], 0);
     assert_eq!(raw[0x401], 1);
@@ -346,7 +365,7 @@ fn test_set_bcd() {
 
     cpu.address = 0x0500;
     cpu.regs[0x2] = 8;
-    cpu.do_instruction(&Instruction::SetBCD(0x2));
+    cpu.do_instruction(&Instruction::SetBCD(0x2)).unwrap();
     let raw = cpu.memory.clone().into_inner();
     assert_eq!(raw[0x500], 0);
     assert_eq!(raw[0x501], 0);
@@ -374,7 +393,7 @@ fn test_dump_reg() {
     cpu.regs[0xe] = 0x0f;
     cpu.address = 0x0300;
     cpu.memory.set_position(cpu.address as u64);
-    cpu.do_instruction(&Instruction::DumpReg(0xe));
+    cpu.do_instruction(&Instruction::DumpReg(0xe)).unwrap();
     assert_eq!(cpu.pc, 0x202);
 
     let raw = cpu.memory.into_inner();
@@ -406,7 +425,7 @@ fn test_load_reg() {
         .write_all(&[0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf,
                      0x10])
         .unwrap();
-    cpu.do_instruction(&Instruction::LoadReg(0xe));
+    cpu.do_instruction(&Instruction::LoadReg(0xe)).unwrap();
     assert_eq!(cpu.pc, 0x202);
 
     assert_eq!(cpu.address, 0x30f);
@@ -432,21 +451,24 @@ fn test_load_reg() {
 fn test_set_memory_for_font() {
     let mut cpu = CPU::new(&vec![], None);
     cpu.regs[0x0] = 0;
-    cpu.do_instruction(&Instruction::SetMemoryForFont(0x0));
+    cpu.do_instruction(&Instruction::SetMemoryForFont(0x0))
+        .unwrap();
     assert_eq!(cpu.address, 0x0);
 
     cpu.regs[0x0] = 9;
-    cpu.do_instruction(&Instruction::SetMemoryForFont(0x0));
+    cpu.do_instruction(&Instruction::SetMemoryForFont(0x0))
+        .unwrap();
     assert_eq!(cpu.address, 45);
 
     cpu.regs[0x0] = 0xf;
-    cpu.do_instruction(&Instruction::SetMemoryForFont(0x0));
+    cpu.do_instruction(&Instruction::SetMemoryForFont(0x0))
+        .unwrap();
     assert_eq!(cpu.address, 75);
 }
 
 #[test]
 fn test_it() {
     let mut data = vec![0; 4];
-    data.write_u16::<BigEndian>(0xf029);
-    data.write_u16::<BigEndian>(0xd00f);
+    data.write_u16::<BigEndian>(0xf029).unwrap();
+    data.write_u16::<BigEndian>(0xd00f).unwrap();
 }

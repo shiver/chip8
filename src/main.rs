@@ -1,32 +1,29 @@
 extern crate chip8;
 extern crate sdl2;
-#[macro_use] extern crate failure;
+#[macro_use]
+extern crate failure;
 
 use std::env;
-use std::time::{Duration, Instant};
+use std::time::Instant;
 use std::process::exit;
 
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
-use sdl2::pixels::Color;
 
-pub use failure::{Error, Fail, err_msg};
-use chip8::{read_binary, Context};
+use failure::{Error, err_msg};
+use chip8::{read_binary, Context, FRAME_TICK, CPU_TICK};
 use chip8::cpu::CPU;
 use chip8::instructions::Instruction;
-
-const FRAME_TICK: Duration = Duration::from_millis(16);
-const CPU_TICK: Duration = Duration::from_millis(1);
 
 fn init_canvas(context: &mut Context) -> Result<&Context, Error> {
     let sdl_context = match sdl2::init() {
         Ok(v) => v,
-        Err(s) => return Err(err_msg(s))
+        Err(s) => return Err(err_msg(s)),
     };
 
     let video_subsystem = match sdl_context.video() {
         Ok(v) => v,
-        Err(s) => return Err(err_msg(s))
+        Err(s) => return Err(err_msg(s)),
     };
 
     let window = video_subsystem
@@ -44,7 +41,7 @@ fn init_event_subsystem(context: &mut Context) -> Result<&Context, Error> {
     if let Some(ref sdl_context) = context.sdl_context {
         context.events = match sdl_context.event_pump() {
             Ok(v) => Some(v),
-            Err(s) => return Err(err_msg(s))
+            Err(s) => return Err(err_msg(s)),
         };
 
         Ok(context)
@@ -54,9 +51,21 @@ fn init_event_subsystem(context: &mut Context) -> Result<&Context, Error> {
 }
 
 fn main() {
-    let mut context = Context{canvas: None, grid: vec![0; 2046], key_map: [0; 16], events: None, sdl_context: None};
-    init_canvas(&mut context);
-    init_event_subsystem(&mut context);
+    let mut context = Context {
+        canvas: None,
+        grid: vec![0; 2046],
+        key_map: [0; 16],
+        events: None,
+        sdl_context: None,
+    };
+    match init_canvas(&mut context) { 
+        Err(e) => println!("Failed to initialise canvas: {}", e),
+        Ok(_) => (),
+    }
+    match init_event_subsystem(&mut context) {
+        Err(e) => println!("Failed to initialise event system: {}", e),
+        Ok(_) => (),
+    }
 
     let filename = env::args().nth(1).expect("filename?");
 
@@ -70,7 +79,9 @@ fn main() {
 
     let mut cpu = CPU::new(&data, context.canvas);
 
-    let mut event_pump = context.events.expect("Event subsystem should have been available, but it wasn't!");
+    let mut event_pump = context
+        .events
+        .expect("Event subsystem should have been available, but it wasn't!");
 
     let mut cpu_last = Instant::now();
     let mut frame_last = Instant::now();
@@ -100,9 +111,16 @@ fn main() {
 
         if cpu.keys[15] != 1 {
             if cpu_last.elapsed() >= CPU_TICK {
-                let raw = cpu.fetch_opcode().unwrap();
-                if let Some(instruction) = Instruction::from_u16(&raw) {
-                    cpu.do_instruction(&instruction);
+                match cpu.fetch_opcode() {
+                    Ok(raw_opcode) => {
+                        if let Some(instruction) = Instruction::from_u16(&raw_opcode) {
+                            match cpu.do_instruction(&instruction) {
+                                Err(e) => println!("Instruction execution failed: {}", e),
+                                Ok(_) => (),
+                            }
+                        }
+                    },
+                    Err(e) => println!("Could not fetch opcode: {}", e)
                 }
 
                 cpu_last = Instant::now();

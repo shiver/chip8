@@ -5,11 +5,14 @@ use sdl2::rect::Rect;
 use sdl2::render::Canvas;
 use sdl2::video::Window;
 
-use byteorder::{BigEndian, LittleEndian, ReadBytesExt};
+use byteorder::{BigEndian, ReadBytesExt};
 use rand;
 
 use instructions::Instruction;
 use FONT4X5;
+
+const GRID_WIDTH: usize = 64;
+const GRID_HEIGHT: usize = 32;
 
 pub struct CPU {
     pub regs: [u8; 16],
@@ -48,7 +51,7 @@ impl CPU {
             pc: 0x200,
             keys: [0; 16],
             display: display,
-            grid: vec![0; 2048],
+            grid: vec![0; GRID_WIDTH * GRID_HEIGHT],
         }
     }
 
@@ -58,15 +61,14 @@ impl CPU {
             canvas.clear();
             canvas.set_draw_color(Color::RGB(255, 255, 255));
 
-            for y in 0..32 {
-                for x in 0..64 {
-                    if self.grid[(y * 64) + x] == 1 {
+            for y in 0..GRID_HEIGHT {
+                for x in 0..GRID_WIDTH {
+                    if self.grid[(y * GRID_WIDTH) + x] == 1 {
                         canvas
                             .fill_rect(Rect::new((x as u8) as i32 * 10,
                                                  (y as u8) as i32 * 10,
                                                  10,
-                                                 10))
-                            .unwrap();
+                                                 10)).unwrap();
                     }
                 }
             }
@@ -76,7 +78,7 @@ impl CPU {
     }
 
     fn clear(&mut self) {
-        for idx in 0..2046 {
+        for idx in 0..GRID_WIDTH * GRID_HEIGHT {
             self.grid[idx] = 0;
         }
     }
@@ -100,7 +102,7 @@ impl CPU {
         }
     }
 
-    pub fn do_instruction(&mut self, instruction: &Instruction) {
+    pub fn do_instruction(&mut self, instruction: &Instruction) -> Result<(), Error> {
         let mut should_increment = true;
         self.timer_tick();
 
@@ -225,19 +227,27 @@ impl CPU {
             }
 
             Instruction::DrawSprite(vx, vy, height) => {
-                let start_x = self.regs[*vx as usize];
-                let start_y = self.regs[*vy as usize];
+                let mut start_x = self.regs[*vx as usize];
+                let mut start_y = self.regs[*vy as usize];
                 let height = *height;
                 self.regs[0xf] = 0;
 
+                if start_x > (GRID_WIDTH - 1) as u8 {
+                    start_x = 0;
+                }
+
                 for y in 0..height {
                     self.memory.set_position((self.address + y as u16) as u64);
-                    let row = self.memory.read_u8().unwrap();
+                    let row = self.memory.read_u8()?;
 
+                    let final_y = y as u16 + start_y as u16;
                     for x in 0..8 {
-                        let grid_pos = (((y as u16 + start_y as u16) * 64) +
-                                        (x as u16 + start_x as u16)) as
-                                       usize;
+                        let final_x = x as u16 + start_x as u16;
+                        if final_x > (GRID_WIDTH - 1) as u16 {
+                            continue;
+                        }
+
+                        let grid_pos = ((final_y * GRID_WIDTH as u16) + final_x) as usize;
                         if (row >> 7 - x) & 1 != 0 {
                             self.regs[0xf] = (self.grid[grid_pos] == 1) as u8;
                             self.grid[grid_pos] ^= 1;
@@ -293,13 +303,13 @@ impl CPU {
                 let t = (val / 10) % 10;
                 let d = (val % 100) % 10;
                 self.memory.set_position(self.address as u64);
-                self.memory.write(&[h, t, d]);
+                self.memory.write(&[h, t, d])?;
             }
 
             Instruction::DumpReg(vx) => {
                 for idx in 0..*vx + 1 {
                     self.memory.set_position(self.address as u64);
-                    self.memory.write(&[self.regs[idx as usize]]);
+                    self.memory.write(&[self.regs[idx as usize]])?;
                     self.address += 1;
                 }
             }
@@ -307,7 +317,7 @@ impl CPU {
             Instruction::LoadReg(vx) => {
                 for idx in 0..*vx + 1 {
                     self.memory.set_position((self.address as u16) as u64);
-                    self.regs[idx as usize] = self.memory.read_u8().unwrap();
+                    self.regs[idx as usize] = self.memory.read_u8()?;
                     self.address += 1;
                 }
             }
@@ -316,5 +326,7 @@ impl CPU {
         if should_increment {
             self.inc_pc();
         }
+
+        Ok(())
     }
 }

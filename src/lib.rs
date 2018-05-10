@@ -1,7 +1,7 @@
 extern crate byteorder;
 extern crate rand;
 extern crate sdl2;
-#[macro_use] extern crate failure;
+extern crate failure;
 
 mod bitrange;
 pub mod instructions;
@@ -9,6 +9,7 @@ pub mod cpu;
 
 use std::fs::File;
 use std::io::Read;
+use std::time::Duration;
 
 pub use failure::{Error, Fail};
 
@@ -17,6 +18,8 @@ use sdl2::video::Window;
 use sdl2::EventPump;
 use sdl2::Sdl;
 
+pub const FRAME_TICK: Duration = Duration::from_millis(16);
+pub const CPU_TICK: Duration = Duration::from_millis(2);
 
 pub const FONT4X5: [u8; 80] = [
     0xf0, 0x90, 0x90, 0x90, 0xf0, // 0
@@ -42,7 +45,7 @@ pub struct Context {
     pub canvas: Option<Canvas<Window>>,
     pub events: Option<EventPump>,
     pub grid: Vec<u8>,
-    pub key_map: [u8; 16]
+    pub key_map: [u8; 16],
 }
 
 
