@@ -46,7 +46,7 @@ Contributions are welcome! Whether in the form of pull requests, suggestions, or
 **CHIP-8 Info**:
 
 - https://en.wikipedia.org/wiki/CHIP-8
-- http://devernay.free.fr/hacks/chip8/C8TECH10.HTM#00E0
+- http://devernay.free.fr/hacks/chip8/C8TECH10.HTM
 
 **Programs**:
 
