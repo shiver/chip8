@@ -1,6 +1,6 @@
 # CHIP-8 Emulator in Rust
 
-![Brix](http://github.com/shiver/chip8/images/BRIX.gif)
+![Brix](https://raw.githubusercontent.com/shiver/chip8/master/images/BRIX.gif)
 
 A short weekend project to get some understanding around emulators and a little more experience with Rust.
 If you have any suggestions or comments regarding either the code, emulators or Rust in general I would be happy to hear from you!
@@ -46,7 +46,7 @@ Contributions are welcome! Whether in the form of pull requests, suggestions, or
 **CHIP-8 Info**:
 
 - https://en.wikipedia.org/wiki/CHIP-8
-- http://devernay.free.fr/hacks/chip8/C8TECH10.HTM#00E0
+- http://devernay.free.fr/hacks/chip8/C8TECH10.HTM
 
 **Programs**:
 
