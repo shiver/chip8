@@ -13,7 +13,7 @@ I have tested this on both Windows 10 and Arch Linux.
     
     See `Resources used during development` section below.
 
-- Rust nightly 1.27.0+
+- Rust 1.26+
 - SDL2 development libraries
 
     ### Linux
